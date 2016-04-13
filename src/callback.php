@@ -6,9 +6,6 @@ $channel_id     = "";
 $channel_secret = "";
 $mid            = "";
 
-// リソースURL設定
-$preview_image_url_for_image = "[サムネイル画像URL]";
-
 // メッセージ受信
 $json_string  = file_get_contents('php://input');
 $json_object  = json_decode($json_string);
@@ -20,11 +17,6 @@ $content_type = $content->contentType;
 
 // ユーザ情報取得
 api_get_user_profile_request($from);
-
-// メッセージが画像、動画、音声であれば保存
-if (in_array($content_type, array(2, 3, 4))) {
-   api_get_message_content_request($message_id);
-}
 
 // メッセージコンテンツ生成
 $location_content = <<< EOM
@@ -58,14 +50,10 @@ EOM;
 $event_type = "138311608800106203";
 if ($text == "image") {
    $content = $image_content;
-} else if ($text == "audio") {
-   $content = $audio_content;
 } else if ($text == "location") {
    $content = $location_content;
-/*
 } else if ($text == "sticker") {
    $content = $sticker_content;
-*/
 } else if ($text == "rich") {
    $content = $rich_content;
 } else if ($text == "multi") {
@@ -73,6 +61,7 @@ if ($text == "image") {
 $content = <<< EOM
    "messageNotified": 0,
    "messages": [
+     {{$image_content}},
      {{$location_content}},
      {{$sticker_content}},
      {{$rich_content}}
