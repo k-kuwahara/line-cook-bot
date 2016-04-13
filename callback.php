@@ -58,7 +58,7 @@ EOM;
 $event_type = "138311608800106203";
 if ($text == "image") {
    $content = $image_content;
-}uu else if ($text == "audio") {
+} else if ($text == "audio") {
    $content = $audio_content;
 } else if ($text == "location") {
    $content = $location_content;
