@@ -3,7 +3,7 @@ require_once('./config.php');
 error_log("callback start.");
 
 // リソースURL設定
-$preview_image_url_for_image = "[サムネイル画像URL]";
+$preview_image_url_for_image = '';
 
 // メッセージ受信
 $json_object  = json_decode(file_get_contents('php://input'));
