@@ -1,25 +1,21 @@
 <?php
+require_once('./config.php');
 error_log("callback start.");
-
-// アカウント情報設定
-$channel_id     = "";
-$channel_secret = "";
-$mid            = "";
 
 // リソースURL設定
 $preview_image_url_for_image = "[サムネイル画像URL]";
 
 // メッセージ受信
-$json_string  = file_get_contents('php://input');
-$json_object  = json_decode($json_string);
+$json_object  = json_decode(file_get_contents('php://input'));
 $content      = $json_object->result{0}->content;
 $text         = $content->text;
 $from         = $content->from;
 $message_id   = $content->id;
 $content_type = $content->contentType;
 
-// ユーザ情報取得
-api_get_user_profile_request($from);
+// log出力
+output_log($text);
+
 
 // メッセージが画像、動画、音声であれば保存
 if (in_array($content_type, array(2, 3, 4))) {
@@ -121,21 +117,6 @@ function api_post_request($path, $post) {
    error_log($output);
 }
 
-function api_get_user_profile_request($mid) {
-   $url = "https://trialbot-api.line.me/v1/profiles?mids={$mid}";
-   $headers = array(
-      "X-Line-ChannelID: {$GLOBALS['channel_id']}",
-      "X-Line-ChannelSecret: {$GLOBALS['channel_secret']}",
-      "X-Line-Trusted-User-With-ACL: {$GLOBALS['mid']}"
-   ); 
-
-   $curl = curl_init($url);
-   curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-   curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-   $output = curl_exec($curl);
-   error_log($output);
-}
-
 function api_get_message_content_request($message_id) {
    $url = "https://trialbot-api.line.me/v1/bot/message/{$message_id}/content";
    $headers = array(
@@ -149,4 +130,15 @@ function api_get_message_content_request($message_id) {
    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
    $output = curl_exec($curl);
    file_put_contents("/tmp/{$message_id}", $output);
+}
+
+function output_log($log, $name = "text") {
+  if (!is_dir(LOG_PATH)){
+     mkdir(LOG_PATH, 0777);
+  }
+
+  $date = date("Ymd");
+  $time_stamp = date("Y-m-d H:i:s");
+  $output = print_r($log, true);
+   error_log("[{$time_stamp}] ".$output.PHP_EOL, 3, LOG_PATH."{$date}_{$name}.log");
 }
